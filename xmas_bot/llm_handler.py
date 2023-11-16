@@ -6,7 +6,7 @@ from langchain.prompts import HumanMessagePromptTemplate, ChatPromptTemplate, Pr
 
 class Giga:
     def __init__(self, prompt_template, sys_message):
-        self._llm = GigaChat(temperature=1e-15, verify_ssl_certs=False, scope='GIGACHAT_API_CORP')
+        self._llm = GigaChat(temperature=1, verify_ssl_certs=False, scope='GIGACHAT_API_CORP')
         self._prompt_template = prompt_template
         self._sys_message = sys_message
 

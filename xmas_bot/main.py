@@ -44,15 +44,17 @@ class DtaasHelper:
             markup = telebot.types.InlineKeyboardMarkup()
             markup.row_width = 2
             markup.add(telebot.types.InlineKeyboardButton("👍", callback_data="like"),
-                                    telebot.types.InlineKeyboardButton("👎", callback_data="dislike"))
+                                    telebot.types.InlineKeyboardButton("👎", callback_data="dislike"),
+                                    telebot.types.InlineKeyboardButton("🔁", callback_data="rewrite"))
             return markup
 
         @self.bot.message_handler(commands=["start"])
         def start(message, res=False):
             response = self.greeting_response
             self.bot.send_message(
-                message.chat.id, response)
+                message.chat.id, response, parse_mode="markdown")
             self.db.log_message(message, response)
+
 
         @self.bot.message_handler(content_types=["text"])
         def handle_text(message):
@@ -68,12 +70,25 @@ class DtaasHelper:
         def callback_query(call):
             if call.data=="like":
                 like = 1
+                self.bot.answer_callback_query(call.id, "Спасибо за оценку!")
             elif call.data=="dislike":
                 like = -1
+                self.bot.answer_callback_query(call.id, "Спасибо за оценку!")
+            elif call.data=="rewrite":
+                like = -1
+                response = self.error_response
+                try:
+                    response = self.llmh.call(call.message.reply_to_message.text)
+                except Exception as e:
+                    pass
+                self.bot.edit_message_text(response, 
+                                           chat_id=call.message.chat.id, message_id=call.message.id, 
+                                           reply_markup=gen_markup())
             else:
                 like = 0
             self.db.log_like(call.message.id, call.message.chat.id, like)
-            self.bot.answer_callback_query(call.id, "Спасибо за оценку!")
+            
+            
 
     def run(self):
         print('bot is pooling...')
