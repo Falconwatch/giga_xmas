@@ -52,7 +52,7 @@ class DtaasHelper:
         def start(message, res=False):
             response = self.greeting_response
             self.bot.send_message(
-                message.chat.id, response)
+                message.chat.id, response, parse_mode="markdown")
             self.db.log_message(message, response)
 
 
@@ -76,7 +76,11 @@ class DtaasHelper:
                 self.bot.answer_callback_query(call.id, "Спасибо за оценку!")
             elif call.data=="rewrite":
                 like = -1
-                response = self.llmh.call(call.message.reply_to_message.text)
+                response = self.error_response
+                try:
+                    response = self.llmh.call(call.message.reply_to_message.text)
+                except Exception as e:
+                    pass
                 self.bot.edit_message_text(response, 
                                            chat_id=call.message.chat.id, message_id=call.message.id, 
                                            reply_markup=gen_markup())
