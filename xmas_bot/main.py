@@ -73,11 +73,12 @@ class DtaasHelper:
                 response = self.llmh.call(message.text)
                 message_from_tg = self.bot.send_photo(chat_id=message.chat.id,
                                 reply_to_message_id = message.id,
-                                photo = get_img(), caption=response
+                                photo = get_img(), caption=response,
+                                reply_markup=gen_markup()
                                 )
             except Exception as e:
                 logging.error("Can not get a response from LLM" + str(e))
-                self.bot.reply_to(message, response, reply_markup=gen_markup())
+                self.bot.reply_to(message, response)
 
 
         @self.bot.callback_query_handler(func=lambda call: True)
