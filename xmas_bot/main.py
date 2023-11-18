@@ -7,6 +7,7 @@ import argparse
 
 from db_manager import DBManager
 from llm_handler import Giga
+from telebot.types import InputFile
 
 dotenv.load_dotenv()
 
@@ -47,6 +48,15 @@ class DtaasHelper:
                                     telebot.types.InlineKeyboardButton("👎", callback_data="dislike"),
                                     telebot.types.InlineKeyboardButton("🔁", callback_data="rewrite"))
             return markup
+        
+        
+        def get_img():
+            import random
+            all_images_names = os.listdir("img/")
+            image_name = random.choice(all_images_names)
+            img = InputFile(open(f"img/{image_name}", "rb"))
+            return img
+
 
         @self.bot.message_handler(commands=["start"])
         def start(message, res=False):
@@ -61,10 +71,14 @@ class DtaasHelper:
             response = self.error_response
             try:
                 response = self.llmh.call(message.text)
+                message_from_tg = self.bot.send_photo(chat_id=message.chat.id,
+                                reply_to_message_id = message.id,
+                                photo = get_img(), caption=response
+                                )
             except Exception as e:
                 logging.error("Can not get a response from LLM" + str(e))
-            self.bot.reply_to(message, response, reply_markup=gen_markup())
-            #self.db.log_message(message, response)
+                self.bot.reply_to(message, response, reply_markup=gen_markup())
+
 
         @self.bot.callback_query_handler(func=lambda call: True)
         def callback_query(call):
