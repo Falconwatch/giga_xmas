@@ -7,7 +7,7 @@ import argparse
 
 from db_manager import DBManager
 from llm_handler import Giga
-from telebot.types import InputFile
+from telebot.types import InputFile, InputMedia, InputMediaPhoto
 
 dotenv.load_dotenv()
 
@@ -56,6 +56,10 @@ class DtaasHelper:
             image_name = random.choice(all_images_names)
             img = InputFile(open(f"img/{image_name}", "rb"))
             return img
+            fn = img.file_name
+            return InputMediaPhoto(fn)
+
+            
 
 
         @self.bot.message_handler(commands=["start"])
@@ -93,12 +97,18 @@ class DtaasHelper:
                 like = -1
                 response = self.error_response
                 try:
+                    #новый текст
                     response = self.llmh.call(call.message.reply_to_message.text)
+                    #удаляю старое сообщение
+                    self.bot.delete_message(call.message.chat.id, call.message.message_id)
+                    #отправляю новое сообщение
+                    self.bot.send_photo(chat_id=call.message.chat.id,
+                                reply_to_message_id = call.message.reply_to_message.id,
+                                photo = get_img(), caption=response,
+                                reply_markup=gen_markup()
+                                )
                 except Exception as e:
-                    pass
-                self.bot.edit_message_text(response, 
-                                           chat_id=call.message.chat.id, message_id=call.message.id, 
-                                           reply_markup=gen_markup())
+                    pass  
             else:
                 like = 0
             self.db.log_like(call.message.id, call.message.chat.id, like)
