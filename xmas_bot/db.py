@@ -13,7 +13,7 @@ class DB:
 
     def create_table_if_exists(self):
         self.cursor.execute("""CREATE TABLE IF NOT EXISTS messages(
-                                                                    message_id INTEGER PRIMARY KEY,
+                                                                    message_id INTEGER,
                                                                     user_id INTEGER NOT NULL,
                                                                     chat_id INTEGER NOT NULL,
                                                                     message TEXT,
