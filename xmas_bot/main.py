@@ -80,6 +80,7 @@ class DtaasHelper:
                                 photo = get_img(), caption=response,
                                 reply_markup=gen_markup()
                                 )
+                self.db.log_message(message,response)
             except Exception as e:
                 logging.error("Can not get a response from LLM" + str(e))
                 self.bot.reply_to(message, response)
@@ -107,6 +108,7 @@ class DtaasHelper:
                                 photo = get_img(), caption=response,
                                 reply_markup=gen_markup()
                                 )
+                    self.db.log_message(call.message.reply_to_message,response)
                 except Exception as e:
                     pass  
             else:
